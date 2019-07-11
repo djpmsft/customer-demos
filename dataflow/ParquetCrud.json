@@ -28,7 +28,7 @@
 					"name": "ParquetCrudOutput"
 				}
 			],
-			"script": "\nparameters{\n\ttriggerTime as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> ParquetCrudInput\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> PKTable\nParquetCrudInput sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output.parquet'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
+			"script": "\nparameters{\n\ttriggerTime as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> ParquetCrudInput\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> PKTable\nParquetCrudInput select() ~> Select1\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output.parquet'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
 		}
 	}
 }
