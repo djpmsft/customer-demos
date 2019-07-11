@@ -17,15 +17,7 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "ParquetCrud",
-						"type": "DataFlowReference",
-						"datasetParameters": {
-							"PKTable": {
-								"filename": null
-							},
-							"InputData": {
-								"filename": null
-							}
-						}
+						"type": "DataFlowReference"
 					}
 				}
 			}

@@ -79,13 +79,14 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "ParquetInput",
+									"referenceName": "CopyParquetOutput",
 									"type": "DatasetReference",
 									"parameters": {
 										"filename": {
 											"value": "@concat(item().TableName,'_at_',formatDateTime(pipeline().TriggerTime,'s'))",
 											"type": "Expression"
-										}
+										},
+										"folderPath": "providence-health/input/tables"
 									}
 								}
 							]
@@ -179,13 +180,14 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "PKInput",
+						"referenceName": "CopyParquetOutput",
 						"type": "DatasetReference",
 						"parameters": {
 							"filename": {
 								"value": "@concat('PK_table_at_',formatDateTime(pipeline().TriggerTime,'s'))",
 								"type": "Expression"
-							}
+							},
+							"folderPath": "providence-health/input/pk"
 						}
 					}
 				]

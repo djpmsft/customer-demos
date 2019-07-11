@@ -5,11 +5,6 @@
 			"referenceName": "ADLSGen2",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"filename": {
-				"type": "string"
-			}
-		},
 		"folder": {
 			"name": "ParquetCrud"
 		},
@@ -18,10 +13,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": {
-					"value": "@dataset().filename",
-					"type": "Expression"
-				},
 				"folderPath": "providence-health/input/pk",
 				"fileSystem": "sample-data"
 			},

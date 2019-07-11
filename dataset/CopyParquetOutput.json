@@ -1,9 +1,17 @@
 {
-	"name": "ParquetInput",
+	"name": "CopyParquetOutput",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ADLSGen2",
 			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"filename": {
+				"type": "string"
+			},
+			"folderPath": {
+				"type": "string"
+			}
 		},
 		"folder": {
 			"name": "ParquetCrud"
@@ -13,7 +21,14 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "providence-health/input/tables",
+				"fileName": {
+					"value": "@dataset().filename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().folderPath",
+					"type": "Expression"
+				},
 				"fileSystem": "sample-data"
 			},
 			"compressionCodec": "snappy"
