@@ -17,6 +17,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "InputData"
+				},
+				{
+					"dataset": {
+						"referenceName": "ParquetCrudOutput",
+						"type": "DatasetReference"
+					},
+					"name": "ExistingData"
 				}
 			],
 			"sinks": [
@@ -28,7 +35,7 @@
 					"name": "ParquetCrudOutput"
 				}
 			],
-			"script": "\nparameters{\n\ttriggerTime as string\n}\nsource(output(\n\t\ttable_name as string,\n\t\tupdate_dt as timestamp,\n\t\tPK as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> PKTable\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> InputData\nPKTable select(mapColumn(\n\t\teach(match(lower(name) == 'pk'),\n\t\t\t'pk' = $$)\n\t)) ~> RuleBasedSelectPK\nInputData join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),\n\tjoinType:'inner',\n\tbroadcast: 'none')~> Join1\nJoin1 sink(input(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output.parquet'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
+			"script": "\nparameters{\n\ttriggerTime as string\n}\nsource(output(\n\t\ttable_name as string,\n\t\tupdate_dt as timestamp,\n\t\tPK as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/pk','/providence-health/input/pk/moved']) ~> PKTable\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/tables','/providence-health/input/tables/moved']) ~> InputData\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> ExistingData\nExistingData, InputData exists(ExistingData@PK == InputData@PK,\n\tnegate:true,\n\tbroadcast: 'none')~> FilterUpdatedData\nInputData sink(input(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
 		}
 	}
 }
