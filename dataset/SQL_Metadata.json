@@ -1,0 +1,30 @@
+{
+	"name": "SQL_Metadata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ParquetCrud"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "TableName",
+				"type": "varchar"
+			},
+			{
+				"name": "LastProcessTime",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"tableName": "[dbo].[metadata_table]"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

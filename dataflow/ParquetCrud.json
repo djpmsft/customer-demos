@@ -1,0 +1,27 @@
+{
+	"name": "ParquetCrud",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ParquetCrudInput",
+						"type": "DatasetReference"
+					},
+					"name": "ParquetCrudInput"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ParquetCrudOutput",
+						"type": "DatasetReference"
+					},
+					"name": "ParquetCrudOutput"
+				}
+			],
+			"script": "\n\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> ParquetCrudInput\nParquetCrudInput sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output.parquet'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
+		}
+	}
+}
