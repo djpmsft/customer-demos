@@ -18,10 +18,12 @@
 					"dataflow": {
 						"referenceName": "ParquetCrud",
 						"type": "DataFlowReference",
-						"parameters": {
-							"triggerTime": {
-								"value": "'@{formatDateTime(pipeline().TriggerTime,'s')}'",
-								"type": "Expression"
+						"datasetParameters": {
+							"PKTable": {
+								"filename": null
+							},
+							"InputData": {
+								"filename": null
 							}
 						}
 					}
