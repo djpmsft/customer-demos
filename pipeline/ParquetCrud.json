@@ -23,21 +23,11 @@
 								"value": "'@{formatDateTime(pipeline().TriggerTime,'s')}'",
 								"type": "Expression"
 							}
-						},
-						"datasetParameters": {
-							"PKTable": {
-								"folder": "providence-health/input/pk"
-							}
 						}
 					}
 				}
 			}
 		],
-		"parameters": {
-			"triggerTime": {
-				"type": "string"
-			}
-		},
 		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
