@@ -25,9 +25,6 @@
 							}
 						},
 						"datasetParameters": {
-							"ParquetCrudInput": {
-								"folder": "providence-health/input/tables"
-							},
 							"PKTable": {
 								"folder": "providence-health/input/pk"
 							}

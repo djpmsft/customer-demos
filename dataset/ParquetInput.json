@@ -1,5 +1,5 @@
 {
-	"name": "PKInput",
+	"name": "ParquetInput",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ADLSGen2",
@@ -22,23 +22,23 @@
 					"value": "@dataset().filename",
 					"type": "Expression"
 				},
-				"folderPath": "providence-health/input/pk",
+				"folderPath": "providence-health/input/tables",
 				"fileSystem": "sample-data"
 			},
 			"compressionCodec": "snappy"
 		},
 		"schema": [
 			{
-				"name": "table_name",
+				"name": "PK",
+				"type": "INT32"
+			},
+			{
+				"name": "col1",
 				"type": "UTF8"
 			},
 			{
-				"name": "update_dt",
-				"type": "INT96"
-			},
-			{
-				"name": "PK",
-				"type": "INT32"
+				"name": "col2",
+				"type": "UTF8"
 			}
 		]
 	},

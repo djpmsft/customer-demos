@@ -18,7 +18,20 @@
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "PK",
+				"type": "INT32"
+			},
+			{
+				"name": "col1",
+				"type": "UTF8"
+			},
+			{
+				"name": "col2",
+				"type": "UTF8"
+			}
+		]
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"
 }
