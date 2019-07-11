@@ -189,6 +189,38 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "ParquetCrudDataFLow",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ForEachSourceTable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Copy PK Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ParquetCrud",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"triggerTime": {
+							"value": "@pipeline().TriggerTime",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
 		"annotations": []

@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "ParquetCrudInput",
+						"referenceName": "ParquetCrudContainer",
 						"type": "DatasetReference"
 					},
 					"name": "ParquetCrudInput"
@@ -21,7 +21,7 @@
 					"name": "ParquetCrudOutput"
 				}
 			],
-			"script": "\n\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> ParquetCrudInput\nParquetCrudInput sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output.parquet'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
+			"script": "\nparameters{\n\ttriggerTime as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\twildcardPaths:[('providence-health/input/*' + $triggerTime)]) ~> ParquetCrudInput\nParquetCrudInput sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['output.parquet'],\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
 		}
 	}
 }

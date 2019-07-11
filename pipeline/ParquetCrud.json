@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "dataflow1",
+				"name": "ParquetCrudDataFlow",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -18,15 +18,21 @@
 					"dataflow": {
 						"referenceName": "ParquetCrud",
 						"type": "DataFlowReference",
-						"datasetParameters": {
-							"ParquetCrudInput": {
-								"filename": "test"
+						"parameters": {
+							"triggerTime": {
+								"value": "'@{formatDateTime(pipeline().TriggerTime,'s')}'",
+								"type": "Expression"
 							}
 						}
 					}
 				}
 			}
 		],
+		"parameters": {
+			"triggerTime": {
+				"type": "string"
+			}
+		},
 		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
