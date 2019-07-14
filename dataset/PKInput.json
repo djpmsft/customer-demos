@@ -13,7 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "providence-health/input/pk",
+				"folderPath": "parquetCrud/input/pk",
 				"fileSystem": "sample-data"
 			},
 			"compressionCodec": "snappy"
