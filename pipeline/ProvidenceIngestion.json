@@ -86,7 +86,7 @@
 											"value": "@concat(item().TableName,'_at_',formatDateTime(pipeline().TriggerTime,'s'))",
 											"type": "Expression"
 										},
-										"folderPath": "providence-health/input/tables"
+										"folderPath": "parquetCrud/input/tables"
 									}
 								}
 							]
@@ -187,7 +187,7 @@
 								"value": "@concat('PK_table_at_',formatDateTime(pipeline().TriggerTime,'s'))",
 								"type": "Expression"
 							},
-							"folderPath": "providence-health/input/pk"
+							"folderPath": "parquetCrud/input/pk"
 						}
 					}
 				]
