@@ -6,18 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory Name",
 			"defaultValue": "daperlov-customer-demos"
-		},
-		"ADLSGen2_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ADLSGen2'"
-		},
-		"SQL_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL'"
-		},
-		"ADLSGen2_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://perlovskybugbash.dfs.core.windows.net"
 		}
 	},
 	"variables": {
@@ -47,16 +35,8 @@
 						"typeProperties": {
 							"dataflow": {
 								"referenceName": "ParquetCrud",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"PKTable": {},
-									"InputData": {},
-									"ExistingData": {},
-									"ParquetCrudOutput": {}
-								}
-							},
-							"staging": {}
+								"type": "DataFlowReference"
+							}
 						}
 					}
 				],
@@ -90,8 +70,7 @@
 							},
 							"dataset": {
 								"referenceName": "SQL_Metadata",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -145,8 +124,7 @@
 									"inputs": [
 										{
 											"referenceName": "SqlDataSource",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									],
 									"outputs": [
@@ -247,8 +225,7 @@
 						"inputs": [
 							{
 								"referenceName": "SqlDataSource",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						],
 						"outputs": [
@@ -288,75 +265,14 @@
 								"referenceName": "ParquetCrud",
 								"type": "PipelineReference"
 							},
-							"waitOnCompletion": true,
-							"parameters": {}
+							"waitOnCompletion": true
 						}
 					}
 				],
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SQL_Metadata')]",
-				"[concat(variables('factoryId'), '/datasets/SqlDataSource')]",
-				"[concat(variables('factoryId'), '/datasets/CopyParquetOutput')]",
-				"[concat(variables('factoryId'), '/pipelines/ParquetCrud')]",
-				"[concat(variables('factoryId'), '/linkedServices/SQL')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyParquetOutput')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"filename": {
-						"type": "string"
-					},
-					"folderPath": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().folderPath",
-							"type": "Expression"
-						},
-						"fileSystem": "sample-data"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "PK",
-						"type": "INT32"
-					},
-					{
-						"name": "col1",
-						"type": "UTF8"
-					},
-					{
-						"name": "col2",
-						"type": "UTF8"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
+				"[concat(variables('factoryId'), '/pipelines/ParquetCrud')]"
 			]
 		},
 		{
@@ -396,9 +312,7 @@
 					}
 				]
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ParquetCrudOutput')]",
@@ -437,9 +351,7 @@
 					}
 				]
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ParquetInput')]",
@@ -478,93 +390,6 @@
 					}
 				]
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SQL_Metadata')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "TableName",
-						"type": "varchar"
-					},
-					{
-						"name": "LastProcessTime",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"tableName": "[[dbo].[metadata_table]"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlDataSource')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADLSGen2')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ADLSGen2_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ADLSGen2_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SQL')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('SQL_connectionString')]"
-				}
-			},
 			"dependsOn": []
 		},
 		{
@@ -581,24 +406,21 @@
 								"referenceName": "PKInput",
 								"type": "DatasetReference"
 							},
-							"name": "PKTable",
-							"typeProperties": {}
+							"name": "PKTable"
 						},
 						{
 							"dataset": {
 								"referenceName": "ParquetInput",
 								"type": "DatasetReference"
 							},
-							"name": "InputData",
-							"typeProperties": {}
+							"name": "InputData"
 						},
 						{
 							"dataset": {
 								"referenceName": "ParquetCrudOutput",
 								"type": "DatasetReference"
 							},
-							"name": "ExistingData",
-							"typeProperties": {}
+							"name": "ExistingData"
 						}
 					],
 					"sinks": [
