@@ -5,6 +5,9 @@
 			"referenceName": "ADLSGen2",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "TaxiDemo"
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
