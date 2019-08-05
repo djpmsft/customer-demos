@@ -1,0 +1,42 @@
+{
+	"name": "TaxiDemo",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "TripData",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripData",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				},
+				{
+					"name": "TripFares",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripFares",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "TaxiSink",
+					"dataset": {
+						"referenceName": "TaxiSink",
+						"type": "DatasetReference"
+					},
+					"script": ""
+				}
+			]
+		}
+	}
+}
