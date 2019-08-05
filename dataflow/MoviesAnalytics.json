@@ -25,7 +25,8 @@
 					},
 					"script": ""
 				}
-			]
+			],
+			"script": "section Section1;\r\nshared MoviesDB = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/moviesDB.csv?sv=2018-03-28&sig=******&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = MoviesDB,\r\n  #\"Removed columns\" = Table.RemoveColumns(Source, {\"Rating\"}),\r\n  #\"Renamed columns\" = Table.RenameColumns(#\"Removed columns\", {{\"Rotton Tomato\", \"Rotten Tomato\"}}),\r\n  #\"Filtered rows\" = Table.SelectRows(#\"Renamed columns\", each ([year] <> \"-1980\")),\r\n  #\"Grouped rows\" = Table.Group(#\"Filtered rows\", {\"year\"}, {{\"Count\", each Table.RowCount(_), type number}})\r\nin\r\n  #\"Grouped rows\";\r\n"
 		}
 	}
 }
