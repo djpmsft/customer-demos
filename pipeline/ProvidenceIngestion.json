@@ -66,7 +66,7 @@
 								"sink": {
 									"type": "ParquetSink",
 									"storeSettings": {
-										"type": "AzureBlobFSWriteSetting"
+										"type": "AzureBlobFSWriteSettings"
 									}
 								},
 								"enableStaging": false
@@ -167,7 +167,7 @@
 					"sink": {
 						"type": "ParquetSink",
 						"storeSettings": {
-							"type": "AzureBlobFSWriteSetting"
+							"type": "AzureBlobFSWriteSettings"
 						}
 					},
 					"enableStaging": false
@@ -219,6 +219,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "Providence"
+		},
 		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"

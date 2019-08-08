@@ -24,6 +24,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "Providence"
+		},
 		"annotations": []
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
