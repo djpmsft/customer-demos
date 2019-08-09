@@ -1,0 +1,33 @@
+{
+	"name": "EyBlobSink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blob",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"outputFolder": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "EY"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@concat('ey/output', dataset().outputFolder)",
+					"type": "Expression"
+				},
+				"container": "sample-data"
+			},
+			"columnDelimiter": "þ",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

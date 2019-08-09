@@ -1,0 +1,92 @@
+{
+	"name": "ExpenseDetails",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Blob",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "EY"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Expense Details.txt",
+				"folderPath": "ey/mock-data1",
+				"container": "sample-data"
+			},
+			"columnDelimiter": "þ",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Grp_ID",
+				"type": "String"
+			},
+			{
+				"name": "Invoice_num",
+				"type": "String"
+			},
+			{
+				"name": "report_line_id",
+				"type": "String"
+			},
+			{
+				"name": "Id",
+				"type": "String"
+			},
+			{
+				"name": "Entity",
+				"type": "String"
+			},
+			{
+				"name": "Name",
+				"type": "String"
+			},
+			{
+				"name": "Similarity",
+				"type": "String"
+			},
+			{
+				"name": "EY_Submitted_Amount",
+				"type": "String"
+			},
+			{
+				"name": "EY_EXPENSE_LINE_AMOUNT_USD",
+				"type": "String"
+			},
+			{
+				"name": "DEFAULT_CURRENCY_CODE",
+				"type": "String"
+			},
+			{
+				"name": "Country_Code",
+				"type": "String"
+			},
+			{
+				"name": "CPI Rank",
+				"type": "String"
+			},
+			{
+				"name": "Test_ID",
+				"type": "String"
+			},
+			{
+				"name": "Designation",
+				"type": "String"
+			},
+			{
+				"name": "Department",
+				"type": "String"
+			},
+			{
+				"name": "Vendor type lookup code",
+				"type": "String"
+			}
+		]
+	}
+}
