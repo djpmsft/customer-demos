@@ -11,6 +11,9 @@
 		"SQL_connectionString": {
 			"value": ""
 		},
+		"Blob_connectionString": {
+			"value": ""
+		},
 		"ADLSGen2_properties_typeProperties_url": {
 			"value": "https://perlovskybugbash.dfs.core.windows.net"
 		}
