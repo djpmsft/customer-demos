@@ -36,7 +36,8 @@
 					},
 					"script": ""
 				}
-			]
+			],
+			"script": "section Section1;\r\nshared TripData = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_data_1.csv?sv=2018-03-28&sig=******&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared TripFares = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_fare_1.csv?sv=2018-03-28&sig=K24uBvy8tdjtMcSHCYzOaYp4j7WcaUXpNBZmw43mmlA%3D&spr=https&se=2019-08-10T16%3A48%3A25Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  #\"Filtered rows\" = Table.SelectRows(Source, each ([pickup_datetime] <> \"2013-01-01 15:11:48\"))\r\nin\r\n  #\"Filtered rows\";\r\n"
 		}
 	}
 }
