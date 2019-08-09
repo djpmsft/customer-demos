@@ -19,14 +19,15 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"folderPath": {
-					"value": "@concat('ey/output', dataset().outputFolder)",
+					"value": "@concat('ey/output/', dataset().outputFolder)",
 					"type": "Expression"
 				},
 				"container": "sample-data"
 			},
 			"columnDelimiter": "þ",
 			"escapeChar": "\\",
-			"quoteChar": "\""
+			"firstRowAsHeader": true,
+			"quoteChar": ""
 		},
 		"schema": []
 	}
