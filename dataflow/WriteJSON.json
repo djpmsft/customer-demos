@@ -26,7 +26,7 @@
 					"name": "ConvertToJSON"
 				}
 			],
-			"script": "\n\nsource(output(\n\t\tmovie as string,\n\t\ttitle as string,\n\t\tgenres as string,\n\t\tyear as string,\n\t\tRating as string,\n\t\t{Rotton Tomato} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> MoviesDB\nMoviesDB derive(test = @(movie=movie,\n\t\ttitle=title,\n\t\tyear=abs(toInteger(year)))) ~> ConvertToJSON\nConvertToJSON sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['movies.json'],\n\ttruncate: true,\n\tmapColumn(\n\t\ttest\n\t),\n\tpartitionBy('hash', 1)) ~> JSON"
+			"script": "\n\nsource(output(\n\t\tmovie as string,\n\t\ttitle as string,\n\t\tgenres as string,\n\t\tyear as string,\n\t\tRating as string,\n\t\t{Rotton Tomato} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> MoviesDB\nMoviesDB derive(test = @(movie=movie,\n\t\ttitle=title,\n\t\tyear=abs(toInteger(year)))) ~> ConvertToJSON\nConvertToJSON sink(input(\n\t\ttest as (movie as string, title as string, year as string)\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['movies.json'],\n\ttruncate: true,\n\tmapColumn(\n\t\ttest\n\t),\n\tpartitionBy('hash', 1)) ~> JSON"
 		}
 	}
 }
