@@ -26,7 +26,7 @@
 				}
 			},
 			{
-				"name": "ForEachSourceTable",
+				"name": "CopyEachSourceTable",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -193,11 +193,11 @@
 				]
 			},
 			{
-				"name": "ParquetCrudDataFLow",
+				"name": "ParquetCrudDataFlow",
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "ForEachSourceTable",
+						"activity": "CopyEachSourceTable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
