@@ -1,5 +1,5 @@
 {
-	"name": "ProvidenceIngestion",
+	"name": "IncrementalLoadDataFlow",
 	"properties": {
 		"activities": [
 			{
@@ -220,7 +220,7 @@
 			}
 		],
 		"folder": {
-			"name": "Providence"
+			"name": "IncrementalLoad"
 		},
 		"annotations": []
 	},
