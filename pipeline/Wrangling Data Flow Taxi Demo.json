@@ -1,9 +1,11 @@
 {
-	"name": "WranglingTaxi",
+	"name": "Wrangling Data Flow Taxi Demo",
 	"properties": {
+		"description": "Joining and Aggregating New York City Taxi Data using Wrangling Data Flows",
 		"activities": [
 			{
-				"name": "TaxiDemo",
+				"name": "Taxi Demo",
+				"description": "Joining and Aggregating New York City Taxi Data",
 				"type": "ExecuteWranglingDataflow",
 				"dependsOn": [],
 				"policy": {
