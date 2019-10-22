@@ -1,0 +1,43 @@
+{
+	"name": "TaxiDemo",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "TripData",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripData",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				},
+				{
+					"name": "TripFares",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripFares",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "TaxiSink",
+					"dataset": {
+						"referenceName": "TaxiSink",
+						"type": "DatasetReference"
+					},
+					"script": ""
+				}
+			],
+			"script": "section Section1;\r\nshared TripData = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_data_1.csv?sv=2018-03-28&sig=yOs951mYnBq2890b%2Bgblc9RJl%2FSxy8xsC%2FXPs2Luprk%3D&spr=https&se=2019-10-23T22%3A13%3A01Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared TripFares = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_fares.csv?sv=2018-03-28&sig=LjdqO%2FFf%2BZBKIyHEhQySL%2FN97gOhHIlYKH6zf4ETp7M%3D&spr=https&se=2019-10-23T22%3A13%3A02Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  #\"Merged queries\" = Table.NestedJoin(Source, {\"medallion\"}, TripFares, {\"medallion\"}, \"TripFares\", JoinKind.Inner),\r\n  #\"Expanded TripFares\" = Table.ExpandTableColumn(#\"Merged queries\", \"TripFares\", {\"medallion\"}, {\"TripFares.medallion\"})\r\nin\r\n  #\"Expanded TripFares\";\r\n"
+		}
+	}
+}
