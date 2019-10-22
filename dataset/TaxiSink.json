@@ -13,6 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"folderPath": "taxi-output",
 				"fileSystem": "sample-data"
 			},
 			"columnDelimiter": ",",
