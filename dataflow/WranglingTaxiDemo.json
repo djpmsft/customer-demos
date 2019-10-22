@@ -1,0 +1,43 @@
+{
+	"name": "WranglingTaxiDemo",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "TripData",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripData",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				},
+				{
+					"name": "TripFares",
+					"script": "",
+					"dataset": {
+						"referenceName": "TripFares",
+						"type": "DatasetReference"
+					},
+					"typeProperties": {
+						"readMode": null
+					}
+				}
+			],
+			"sinks": [
+				{
+					"name": "TaxiSink",
+					"dataset": {
+						"referenceName": "TaxiSink",
+						"type": "DatasetReference"
+					},
+					"script": ""
+				}
+			],
+			"script": "section Section1;\r\nshared TripData = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_data_1.csv?sv=2018-03-28&sig=95mtOTZVXd8lyU09R3PWLUc2EVGET7R%2F8h4JMuWb8KA%3D&spr=https&se=2019-10-22T20%3A51%3A08Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared TripFares = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_fare_1.csv?sv=2018-03-28&sig=UhN61WABu8mXg17ayoE4JF40M1LvLpI4KnbphXk3Tkc%3D&spr=https&se=2019-10-22T20%3A51%3A09Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  #\"Changed column type\" = Table.TransformColumnTypes(Source, {{\"trip_time_in_secs\", Int64.Type}})\r\nin\r\n  #\"Changed column type\";\r\n"
+		}
+	}
+}
