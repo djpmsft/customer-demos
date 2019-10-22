@@ -13,7 +13,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "trip_fares.csv",
+				"fileName": "taxi_fares.csv",
 				"fileSystem": "sample-data"
 			},
 			"columnDelimiter": ",",
@@ -27,43 +27,43 @@
 				"type": "String"
 			},
 			{
-				"name": " hack_license",
+				"name": "hack_license",
 				"type": "String"
 			},
 			{
-				"name": " vendor_id",
+				"name": "vendor_id",
 				"type": "String"
 			},
 			{
-				"name": " pickup_datetime",
+				"name": "pickup_datetime",
 				"type": "String"
 			},
 			{
-				"name": " payment_type",
+				"name": "payment_type",
 				"type": "String"
 			},
 			{
-				"name": " fare_amount",
+				"name": "fare_amount",
 				"type": "String"
 			},
 			{
-				"name": " surcharge",
+				"name": "surcharge",
 				"type": "String"
 			},
 			{
-				"name": " mta_tax",
+				"name": "mta_tax",
 				"type": "String"
 			},
 			{
-				"name": " tip_amount",
+				"name": "tip_amount",
 				"type": "String"
 			},
 			{
-				"name": " tolls_amount",
+				"name": "tolls_amount",
 				"type": "String"
 			},
 			{
-				"name": " total_amount",
+				"name": "total_amount",
 				"type": "String"
 			}
 		]
