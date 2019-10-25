@@ -14,25 +14,6 @@
 				"folderPath": "json/input",
 				"fileSystem": "sample-data"
 			}
-		},
-		"schema": {
-			"type": "object",
-			"properties": {
-				"test": {
-					"type": "object",
-					"properties": {
-						"movie": {
-							"type": "string"
-						},
-						"title": {
-							"type": "string"
-						},
-						"year": {
-							"type": "integer"
-						}
-					}
-				}
-			}
 		}
 	}
 }
