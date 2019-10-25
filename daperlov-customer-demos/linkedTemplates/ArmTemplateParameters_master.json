@@ -8,10 +8,10 @@
 		"ADLSGen2_accountKey": {
 			"value": ""
 		},
-		"SQL_connectionString": {
+		"Blob_connectionString": {
 			"value": ""
 		},
-		"Blob_connectionString": {
+		"SQL_connectionString": {
 			"value": ""
 		},
 		"ADLSGen2_properties_typeProperties_url": {

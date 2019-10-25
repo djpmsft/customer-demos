@@ -4,20 +4,20 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory Name",
+			"metadata": "Data Factory name",
 			"defaultValue": "daperlov-customer-demos"
 		},
 		"ADLSGen2_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ADLSGen2'"
 		},
-		"SQL_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL'"
-		},
 		"Blob_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'Blob'"
+		},
+		"SQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SQL'"
 		},
 		"ADLSGen2_properties_typeProperties_url": {
 			"type": "string",
@@ -29,7 +29,7 @@
 		},
 		"containerSasToken": {
 			"type": "string",
-			"metadata": "Sas Token to storage account containing linked ARM templates"
+			"metadata": "Sas token to storage account containing linked ARM templates"
 		}
 	},
 	"variables": {
@@ -53,11 +53,11 @@
 					"ADLSGen2_accountKey": {
 						"value": "[parameters('ADLSGen2_accountKey')]"
 					},
-					"SQL_connectionString": {
-						"value": "[parameters('SQL_connectionString')]"
-					},
 					"Blob_connectionString": {
 						"value": "[parameters('Blob_connectionString')]"
+					},
+					"SQL_connectionString": {
+						"value": "[parameters('SQL_connectionString')]"
 					},
 					"ADLSGen2_properties_typeProperties_url": {
 						"value": "[parameters('ADLSGen2_properties_typeProperties_url')]"

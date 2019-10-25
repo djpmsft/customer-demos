@@ -6,22 +6,6 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "daperlov-customer-demos"
-		},
-		"ADLSGen2_accountKey": {
-			"type": "secureString",
-			"metadata": "Secure string for 'accountKey' of 'ADLSGen2'"
-		},
-		"Blob_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'Blob'"
-		},
-		"SQL_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL'"
-		},
-		"ADLSGen2_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://perlovskybugbash.dfs.core.windows.net"
 		}
 	},
 	"variables": {
@@ -73,8 +57,7 @@
 						"inputs": [
 							{
 								"referenceName": "ExpenseDetails",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						],
 						"outputs": [
@@ -94,7 +77,6 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ExpenseDetails')]",
 				"[concat(variables('factoryId'), '/datasets/EyBlobSink')]"
 			]
 		},
@@ -122,8 +104,7 @@
 							},
 							"dataset": {
 								"referenceName": "SQL_Metadata",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							},
 							"firstRowOnly": false
 						}
@@ -177,8 +158,7 @@
 									"inputs": [
 										{
 											"referenceName": "SqlDataSource",
-											"type": "DatasetReference",
-											"parameters": {}
+											"type": "DatasetReference"
 										}
 									],
 									"outputs": [
@@ -279,8 +259,7 @@
 						"inputs": [
 							{
 								"referenceName": "SqlDataSource",
-								"type": "DatasetReference",
-								"parameters": {}
+								"type": "DatasetReference"
 							}
 						],
 						"outputs": [
@@ -320,8 +299,7 @@
 								"referenceName": "ParquetCrud",
 								"type": "PipelineReference"
 							},
-							"waitOnCompletion": true,
-							"parameters": {}
+							"waitOnCompletion": true
 						}
 					}
 				],
@@ -331,11 +309,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SQL_Metadata')]",
-				"[concat(variables('factoryId'), '/datasets/SqlDataSource')]",
-				"[concat(variables('factoryId'), '/datasets/CopyParquetOutput')]",
-				"[concat(variables('factoryId'), '/pipelines/ParquetCrud')]",
-				"[concat(variables('factoryId'), '/linkedServices/SQL')]"
+				"[concat(variables('factoryId'), '/pipelines/ParquetCrud')]"
 			]
 		},
 		{
@@ -361,16 +335,8 @@
 						"typeProperties": {
 							"dataflow": {
 								"referenceName": "ParquetCrud",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"PKTable": {},
-									"InputData": {},
-									"ExistingData": {},
-									"ParquetCrudOutput": {}
-								}
-							},
-							"staging": {}
+								"type": "DataFlowReference"
+							}
 						}
 					}
 				],
@@ -379,9 +345,7 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/ParquetCrud')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Wrangling Data Flow Taxi Demo')]",
@@ -406,14 +370,8 @@
 						"typeProperties": {
 							"dataflow": {
 								"referenceName": "TaxiDemo",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"TripData": {},
-									"TripFares": {},
-									"TaxiSink": {}
-								}
+								"type": "DataFlowReference"
 							},
-							"staging": {},
 							"compute": {
 								"computeType": "General",
 								"coreCount": 8
@@ -451,14 +409,8 @@
 						"typeProperties": {
 							"dataflow": {
 								"referenceName": "WriteJSON",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"MoviesDB": {},
-									"JSON": {}
-								}
-							},
-							"staging": {}
+								"type": "DataFlowReference"
+							}
 						}
 					}
 				],
@@ -466,159 +418,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/WriteJSON')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyParquetOutput')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"filename": {
-						"type": "string"
-					},
-					"folderPath": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().folderPath",
-							"type": "Expression"
-						},
-						"fileSystem": "sample-data"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "PK",
-						"type": "INT32"
-					},
-					{
-						"name": "col1",
-						"type": "UTF8"
-					},
-					{
-						"name": "col2",
-						"type": "UTF8"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ExpenseDetails')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Blob",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "EY"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Expense Details.txt",
-						"folderPath": "ey/mock-data1",
-						"container": "sample-data"
-					},
-					"columnDelimiter": "þ",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Grp_ID",
-						"type": "String"
-					},
-					{
-						"name": "Invoice_num",
-						"type": "String"
-					},
-					{
-						"name": "report_line_id",
-						"type": "String"
-					},
-					{
-						"name": "Id",
-						"type": "String"
-					},
-					{
-						"name": "Entity",
-						"type": "String"
-					},
-					{
-						"name": "Name",
-						"type": "String"
-					},
-					{
-						"name": "Similarity",
-						"type": "String"
-					},
-					{
-						"name": "EY_Submitted_Amount",
-						"type": "String"
-					},
-					{
-						"name": "EY_EXPENSE_LINE_AMOUNT_USD",
-						"type": "String"
-					},
-					{
-						"name": "DEFAULT_CURRENCY_CODE",
-						"type": "String"
-					},
-					{
-						"name": "Country_Code",
-						"type": "String"
-					},
-					{
-						"name": "CPI Rank",
-						"type": "String"
-					},
-					{
-						"name": "Test_ID",
-						"type": "String"
-					},
-					{
-						"name": "Designation",
-						"type": "String"
-					},
-					{
-						"name": "Department",
-						"type": "String"
-					},
-					{
-						"name": "Vendor type lookup code",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Blob')]"
 			]
 		},
 		{
@@ -656,9 +455,7 @@
 				},
 				"schema": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Blob')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Json')]",
@@ -678,270 +475,9 @@
 						"folderPath": "json/input",
 						"fileSystem": "sample-data"
 					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/MoviesDB')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "moviesDB.csv",
-						"fileSystem": "sample-data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "movie",
-						"type": "String"
-					},
-					{
-						"name": "title",
-						"type": "String"
-					},
-					{
-						"name": "genres",
-						"type": "String"
-					},
-					{
-						"name": "year",
-						"type": "String"
-					},
-					{
-						"name": "Rating",
-						"type": "String"
-					},
-					{
-						"name": "Rotton Tomato",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/MoviesSink')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "wrangling-movies",
-						"fileSystem": "sample-data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PKInput')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "parquetCrud/input/pk",
-						"fileSystem": "sample-data"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "table_name",
-						"type": "UTF8"
-					},
-					{
-						"name": "update_dt",
-						"type": "INT96"
-					},
-					{
-						"name": "PK",
-						"type": "INT32"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ParquetCrudOutput')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "parquetCrud/output",
-						"fileSystem": "sample-data"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "PK",
-						"type": "INT32"
-					},
-					{
-						"name": "col1",
-						"type": "UTF8"
-					},
-					{
-						"name": "col2",
-						"type": "UTF8"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ParquetInput')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "parquetCrud/input/tables",
-						"fileSystem": "sample-data"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "PK",
-						"type": "INT32"
-					},
-					{
-						"name": "col1",
-						"type": "UTF8"
-					},
-					{
-						"name": "col2",
-						"type": "UTF8"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SQL_Metadata')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "TableName",
-						"type": "varchar"
-					},
-					{
-						"name": "LastProcessTime",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"tableName": "[[dbo].[metadata_table]"
 				}
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlDataSource')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SQL",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "ParquetCrud"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SQL')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/TaxiSink')]",
@@ -970,97 +506,7 @@
 				},
 				"schema": []
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TripData')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSGen2",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "TaxiDemo"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "trip_data_1.csv",
-						"fileSystem": "sample-data"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "medallion",
-						"type": "String"
-					},
-					{
-						"name": "hack_license",
-						"type": "String"
-					},
-					{
-						"name": "vendor_id",
-						"type": "String"
-					},
-					{
-						"name": "rate_code",
-						"type": "String"
-					},
-					{
-						"name": "store_and_fwd_flag",
-						"type": "String"
-					},
-					{
-						"name": "pickup_datetime",
-						"type": "String"
-					},
-					{
-						"name": "dropoff_datetime",
-						"type": "String"
-					},
-					{
-						"name": "passenger_count",
-						"type": "String"
-					},
-					{
-						"name": "trip_time_in_secs",
-						"type": "String"
-					},
-					{
-						"name": "trip_distance",
-						"type": "String"
-					},
-					{
-						"name": "pickup_longitude",
-						"type": "String"
-					},
-					{
-						"name": "pickup_latitude",
-						"type": "String"
-					},
-					{
-						"name": "dropoff_longitude",
-						"type": "String"
-					},
-					{
-						"name": "dropoff_latitude",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/TripFares')]",
@@ -1134,169 +580,7 @@
 					}
 				]
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADLSGen2')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ADLSGen2_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ADLSGen2_accountKey')]"
-					}
-				}
-			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Blob')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('Blob_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SQL')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('SQL_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DemoTumblingWindow1')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Minute",
-					"interval": 15,
-					"startTime": "2019-07-29T20:00:00.000Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DemoTumblingWindow2')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 1,
-					"startTime": "2019-07-29T20:30:00.000Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": [
-						{
-							"type": "TumblingWindowTriggerDependencyReference",
-							"referenceTrigger": {
-								"referenceName": "DemoTumblingWindow1",
-								"type": "TriggerReference"
-							}
-						}
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/triggers/DemoTumblingWindow1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ParquetCrud')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This Data Flow runs CRUD operations on a parquet sink using the following Parquet Inputs:\n1. Primary Key Table: a list of primary keys of rows that exist. This can be both the master list of primary keys or just a list of primary keys of rows that have been inserted/updated\n2. Input Data: A List of rows that are inserted, updated and deleted\n3. Existing Data: The existing sink data base\n\nThe output of this Data Flow is the equivalent of a MERGE command in SQL",
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "PKInput",
-								"type": "DatasetReference"
-							},
-							"name": "PKTable",
-							"typeProperties": {}
-						},
-						{
-							"dataset": {
-								"referenceName": "ParquetInput",
-								"type": "DatasetReference"
-							},
-							"name": "InputData",
-							"typeProperties": {}
-						},
-						{
-							"dataset": {
-								"referenceName": "ParquetCrudOutput",
-								"type": "DatasetReference"
-							},
-							"name": "ExistingData",
-							"typeProperties": {}
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ParquetCrudOutput",
-								"type": "DatasetReference"
-							},
-							"name": "ParquetCrudOutput"
-						}
-					],
-					"transformations": [
-						{
-							"name": "FilterUpdatedData"
-						},
-						{
-							"name": "FilterDeletedData"
-						},
-						{
-							"name": "AppendExistingAndInserted"
-						}
-					],
-					"script": "\n\nsource(output(\n\t\ttable_name as string,\n\t\tupdate_dt as timestamp,\n\t\tPK as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/pk','/providence-health/input/pk/moved'],\n\tformat: 'parquet',\n\tpartitionBy('roundRobin', 2)) ~> PKTable\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/tables','/providence-health/input/tables/moved'],\n\tformat: 'parquet',\n\tpartitionBy('roundRobin', 2)) ~> InputData\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionBy('roundRobin', 2)) ~> ExistingData\nExistingData, InputData exists(ExistingData@PK == InputData@PK,\n\tnegate:true,\n\tbroadcast: 'none')~> FilterUpdatedData\nInputData, PKTable exists(InputData@PK == PKTable@PK,\n\tnegate:false,\n\tbroadcast: 'none')~> FilterDeletedData\nFilterDeletedData, FilterUpdatedData union(byName: true)~> AppendExistingAndInserted\nAppendExistingAndInserted sink(input(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/PKInput')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetInput')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetCrudOutput')]"
-			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/TaxiDemo')]",
@@ -1343,7 +627,6 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/TripData')]",
 				"[concat(variables('factoryId'), '/datasets/TripFares')]",
 				"[concat(variables('factoryId'), '/datasets/TaxiSink')]"
 			]
@@ -1361,8 +644,7 @@
 								"referenceName": "MoviesDB",
 								"type": "DatasetReference"
 							},
-							"name": "MoviesDB",
-							"typeProperties": {}
+							"name": "MoviesDB"
 						}
 					],
 					"sinks": [
@@ -1383,7 +665,6 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/MoviesDB')]",
 				"[concat(variables('factoryId'), '/datasets/Json')]"
 			]
 		}

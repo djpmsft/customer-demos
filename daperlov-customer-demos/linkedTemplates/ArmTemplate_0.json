@@ -4,20 +4,20 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory Name",
+			"metadata": "Data Factory name",
 			"defaultValue": "daperlov-customer-demos"
 		},
 		"ADLSGen2_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ADLSGen2'"
 		},
-		"SQL_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'SQL'"
-		},
 		"Blob_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'Blob'"
+		},
+		"SQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'SQL'"
 		},
 		"ADLSGen2_properties_typeProperties_url": {
 			"type": "string",
@@ -41,6 +41,19 @@
 						"type": "SecureString",
 						"value": "[parameters('ADLSGen2_accountKey')]"
 					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Blob')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('Blob_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -76,19 +89,6 @@
 						"intervalInSeconds": 30
 					},
 					"dependsOn": []
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Blob')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('Blob_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -144,6 +144,167 @@
 						"type": "UTF8"
 					}
 				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ExpenseDetails')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Blob",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "EY"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Expense Details.txt",
+						"folderPath": "ey/mock-data1",
+						"container": "sample-data"
+					},
+					"columnDelimiter": "þ",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Grp_ID",
+						"type": "String"
+					},
+					{
+						"name": "Invoice_num",
+						"type": "String"
+					},
+					{
+						"name": "report_line_id",
+						"type": "String"
+					},
+					{
+						"name": "Id",
+						"type": "String"
+					},
+					{
+						"name": "Entity",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Similarity",
+						"type": "String"
+					},
+					{
+						"name": "EY_Submitted_Amount",
+						"type": "String"
+					},
+					{
+						"name": "EY_EXPENSE_LINE_AMOUNT_USD",
+						"type": "String"
+					},
+					{
+						"name": "DEFAULT_CURRENCY_CODE",
+						"type": "String"
+					},
+					{
+						"name": "Country_Code",
+						"type": "String"
+					},
+					{
+						"name": "CPI Rank",
+						"type": "String"
+					},
+					{
+						"name": "Test_ID",
+						"type": "String"
+					},
+					{
+						"name": "Designation",
+						"type": "String"
+					},
+					{
+						"name": "Department",
+						"type": "String"
+					},
+					{
+						"name": "Vendor type lookup code",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Blob')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/EyBlobSink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Blob",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"outputFolder": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "EY"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@concat('ey/output/', dataset().outputFolder)",
+							"type": "Expression"
+						},
+						"container": "sample-data"
+					},
+					"columnDelimiter": "þ",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": ""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Blob')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLSGen2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "movies.json",
+						"folderPath": "json/input",
+						"fileSystem": "sample-data"
+					}
+				},
+				"schema": {}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
@@ -424,36 +585,15 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"folderPath": "taxi-demo",
+						"folderPath": "taxi-output",
 						"fileSystem": "sample-data"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
+					"firstRowAsHeader": true,
 					"quoteChar": "\""
 				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					}
-				]
+				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLSGen2')]"
@@ -564,7 +704,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "trip_fare_1.csv",
+						"fileName": "taxi_fares.csv",
 						"fileSystem": "sample-data"
 					},
 					"columnDelimiter": ",",
@@ -578,43 +718,43 @@
 						"type": "String"
 					},
 					{
-						"name": " hack_license",
+						"name": "hack_license",
 						"type": "String"
 					},
 					{
-						"name": " vendor_id",
+						"name": "vendor_id",
 						"type": "String"
 					},
 					{
-						"name": " pickup_datetime",
+						"name": "pickup_datetime",
 						"type": "String"
 					},
 					{
-						"name": " payment_type",
+						"name": "payment_type",
 						"type": "String"
 					},
 					{
-						"name": " fare_amount",
+						"name": "fare_amount",
 						"type": "String"
 					},
 					{
-						"name": " surcharge",
+						"name": "surcharge",
 						"type": "String"
 					},
 					{
-						"name": " mta_tax",
+						"name": "mta_tax",
 						"type": "String"
 					},
 					{
-						"name": " tip_amount",
+						"name": "tip_amount",
 						"type": "String"
 					},
 					{
-						"name": " tolls_amount",
+						"name": "tolls_amount",
 						"type": "String"
 					},
 					{
-						"name": " total_amount",
+						"name": "total_amount",
 						"type": "String"
 					}
 				]
@@ -656,239 +796,73 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ExpenseDetails')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/CopyBlobToBlob')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Blob",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "EY"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "Expense Details.txt",
-						"folderPath": "ey/mock-data1",
-						"container": "sample-data"
-					},
-					"columnDelimiter": "þ",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
+				"activities": [
 					{
-						"name": "Grp_ID",
-						"type": "String"
-					},
-					{
-						"name": "Invoice_num",
-						"type": "String"
-					},
-					{
-						"name": "report_line_id",
-						"type": "String"
-					},
-					{
-						"name": "Id",
-						"type": "String"
-					},
-					{
-						"name": "Entity",
-						"type": "String"
-					},
-					{
-						"name": "Name",
-						"type": "String"
-					},
-					{
-						"name": "Similarity",
-						"type": "String"
-					},
-					{
-						"name": "EY_Submitted_Amount",
-						"type": "String"
-					},
-					{
-						"name": "EY_EXPENSE_LINE_AMOUNT_USD",
-						"type": "String"
-					},
-					{
-						"name": "DEFAULT_CURRENCY_CODE",
-						"type": "String"
-					},
-					{
-						"name": "Country_Code",
-						"type": "String"
-					},
-					{
-						"name": "CPI Rank",
-						"type": "String"
-					},
-					{
-						"name": "Test_ID",
-						"type": "String"
-					},
-					{
-						"name": "Designation",
-						"type": "String"
-					},
-					{
-						"name": "Department",
-						"type": "String"
-					},
-					{
-						"name": "Vendor type lookup code",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Blob')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/EyBlobSink')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "Blob",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"outputFolder": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "EY"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@concat('ey/output', dataset().outputFolder)",
-							"type": "Expression"
+						"name": "BlobToBlob",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
 						},
-						"container": "sample-data"
-					},
-					"columnDelimiter": "þ",
-					"escapeChar": "\\",
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Blob')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/MoviesAnalytics')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "WranglingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"name": "MoviesDB",
-							"script": "",
-							"dataset": {
-								"referenceName": "MoviesDB",
-								"type": "DatasetReference"
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
 							},
-							"typeProperties": {
-								"readMode": null
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ExpenseDetails",
+								"type": "DatasetReference",
+								"parameters": {}
 							}
-						}
-					],
-					"sinks": [
-						{
-							"name": "MoviesSink",
-							"dataset": {
-								"referenceName": "MoviesSink",
-								"type": "DatasetReference"
-							},
-							"script": ""
-						}
-					],
-					"script": "section Section1;\r\nshared MoviesDB = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/moviesDB.csv?sv=2018-03-28&sig=******&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = MoviesDB,\r\n  #\"Removed columns\" = Table.RemoveColumns(Source, {\"Rating\"}),\r\n  #\"Renamed columns\" = Table.RenameColumns(#\"Removed columns\", {{\"Rotton Tomato\", \"Rotten Tomato\"}}),\r\n  #\"Filtered rows\" = Table.SelectRows(#\"Renamed columns\", each ([year] <> \"-1980\")),\r\n  #\"Grouped rows\" = Table.Group(#\"Filtered rows\", {\"year\"}, {{\"Count\", each Table.RowCount(_), type number}})\r\nin\r\n  #\"Grouped rows\";\r\n"
-				}
+						],
+						"outputs": [
+							{
+								"referenceName": "EyBlobSink",
+								"type": "DatasetReference",
+								"parameters": {
+									"outputFolder": "blob-to-blob"
+								}
+							}
+						]
+					}
+				],
+				"folder": {
+					"name": "CustomerPipelines"
+				},
+				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/MoviesDB')]",
-				"[concat(variables('factoryId'), '/datasets/MoviesSink')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ParquetCrud')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "This Data Flow runs CRUD operations on a parquet sink using the following Parquet Inputs:\n1. Primary Key Table: a list of primary keys of rows that exist. This can be both the master list of primary keys or just a list of primary keys of rows that have been inserted/updated\n2. Input Data: A List of rows that are inserted, updated and deleted\n3. Existing Data: The existing sink data base\n\nThe output of this Data Flow is the equivalent of a MERGE command in SQL",
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "PKInput",
-								"type": "DatasetReference"
-							},
-							"name": "PKTable",
-							"typeProperties": {}
-						},
-						{
-							"dataset": {
-								"referenceName": "ParquetInput",
-								"type": "DatasetReference"
-							},
-							"name": "InputData",
-							"typeProperties": {}
-						},
-						{
-							"dataset": {
-								"referenceName": "ParquetCrudOutput",
-								"type": "DatasetReference"
-							},
-							"name": "ExistingData",
-							"typeProperties": {}
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ParquetCrudOutput",
-								"type": "DatasetReference"
-							},
-							"name": "ParquetCrudOutput"
-						}
-					],
-					"transformations": [
-						{
-							"name": "FilterUpdatedData"
-						},
-						{
-							"name": "FilterDeletedData"
-						},
-						{
-							"name": "AppendExistingAndInserted"
-						}
-					],
-					"script": "\n\nsource(output(\n\t\ttable_name as string,\n\t\tupdate_dt as timestamp,\n\t\tPK as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/pk','/providence-health/input/pk/moved'],\n\tpartitionBy('roundRobin', 2)) ~> PKTable\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/tables','/providence-health/input/tables/moved'],\n\tpartitionBy('roundRobin', 2)) ~> InputData\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('roundRobin', 2)) ~> ExistingData\nExistingData, InputData exists(ExistingData@PK == InputData@PK,\n\tnegate:true,\n\tbroadcast: 'none')~> FilterUpdatedData\nInputData, PKTable exists(InputData@PK == PKTable@PK,\n\tnegate:false,\n\tbroadcast: 'none')~> FilterDeletedData\nFilterDeletedData, FilterUpdatedData union(byName: true)~> AppendExistingAndInserted\nAppendExistingAndInserted sink(input(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/PKInput')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetInput')]",
-				"[concat(variables('factoryId'), '/datasets/ParquetCrudOutput')]"
+				"[concat(variables('factoryId'), '/datasets/ExpenseDetails')]",
+				"[concat(variables('factoryId'), '/datasets/EyBlobSink')]"
 			]
 		}
 	]

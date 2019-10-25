@@ -4,7 +4,7 @@
 	"parameters": {
 		"factoryName": {
 			"type": "string",
-			"metadata": "Data Factory Name",
+			"metadata": "Data Factory name",
 			"defaultValue": "daperlov-customer-demos"
 		}
 	},
@@ -12,6 +12,65 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ParquetCrud')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "This Data Flow runs CRUD operations on a parquet sink using the following Parquet Inputs:\n1. Primary Key Table: a list of primary keys of rows that exist. This can be both the master list of primary keys or just a list of primary keys of rows that have been inserted/updated\n2. Input Data: A List of rows that are inserted, updated and deleted\n3. Existing Data: The existing sink data base\n\nThe output of this Data Flow is the equivalent of a MERGE command in SQL",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "PKInput",
+								"type": "DatasetReference"
+							},
+							"name": "PKTable",
+							"typeProperties": {}
+						},
+						{
+							"dataset": {
+								"referenceName": "ParquetInput",
+								"type": "DatasetReference"
+							},
+							"name": "InputData",
+							"typeProperties": {}
+						},
+						{
+							"dataset": {
+								"referenceName": "ParquetCrudOutput",
+								"type": "DatasetReference"
+							},
+							"name": "ExistingData",
+							"typeProperties": {}
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ParquetCrudOutput",
+								"type": "DatasetReference"
+							},
+							"name": "ParquetCrudOutput"
+						}
+					],
+					"transformations": [
+						{
+							"name": "FilterUpdatedData"
+						},
+						{
+							"name": "FilterDeletedData"
+						},
+						{
+							"name": "AppendExistingAndInserted"
+						}
+					],
+					"script": "\n\nsource(output(\n\t\ttable_name as string,\n\t\tupdate_dt as timestamp,\n\t\tPK as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/pk','/providence-health/input/pk/moved'],\n\tformat: 'parquet',\n\tpartitionBy('roundRobin', 2)) ~> PKTable\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tmoveFiles: ['/providence-health/input/tables','/providence-health/input/tables/moved'],\n\tformat: 'parquet',\n\tpartitionBy('roundRobin', 2)) ~> InputData\nsource(output(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionBy('roundRobin', 2)) ~> ExistingData\nExistingData, InputData exists(ExistingData@PK == InputData@PK,\n\tnegate:true,\n\tbroadcast: 'none')~> FilterUpdatedData\nInputData, PKTable exists(InputData@PK == PKTable@PK,\n\tnegate:false,\n\tbroadcast: 'none')~> FilterDeletedData\nFilterDeletedData, FilterUpdatedData union(byName: true)~> AppendExistingAndInserted\nAppendExistingAndInserted sink(input(\n\t\tPK as integer,\n\t\tcol1 as string,\n\t\tcol2 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionBy('hash', 1)) ~> ParquetCrudOutput"
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/TaxiDemo')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
@@ -53,75 +112,44 @@
 							"script": ""
 						}
 					],
-					"script": "section Section1;\r\nshared TripData = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_data_1.csv?sv=2018-03-28&sig=******&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared TripFares = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_fare_1.csv?sv=2018-03-28&sig=K24uBvy8tdjtMcSHCYzOaYp4j7WcaUXpNBZmw43mmlA%3D&spr=https&se=2019-08-10T16%3A48%3A25Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  #\"Filtered rows\" = Table.SelectRows(Source, each ([pickup_datetime] <> \"2013-01-01 15:11:48\"))\r\nin\r\n  #\"Filtered rows\";\r\n"
+					"script": "section Section1;\r\nshared TripData = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/trip_data_1.csv?sv=2018-03-28&sig=******&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared TripFares = let\r\n  AdfDoc = Web.Contents(\"https://perlovskybugbash.dfs.core.windows.net/sample-data/taxi_fares.csv?sv=2018-03-28&sig=BgHe3T1vfz3nRoAgUx3pyS0JeFOO8U1Ta82ctne42NU%3D&spr=https&se=2019-10-23T23%3A36%3A25Z&srt=sco&ss=bf&sp=rwl\"),\r\n  Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.None]),\r\n  PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),\r\n  TrimmedHeaders = Table.TransformColumnNames(PromotedHeaders, (columnName as text) as text => Text.Trim(columnName))\r\nin\r\n  TrimmedHeaders;\r\nshared UserQuery = let\r\n  Source = TripData,\r\n  #\"Inner Join\" = Table.NestedJoin(Source, {\"medallion\", \"hack_license\", \"vendor_id\", \"pickup_datetime\"}, TripFares, {\"medallion\", \"hack_license\", \"vendor_id\", \"pickup_datetime\"}, \"TripFares\", JoinKind.Inner),\r\n  #\"Expanding Joined Tables\" = Table.ExpandTableColumn(#\"Inner Join\", \"TripFares\", {\"medallion\", \"hack_license\", \"vendor_id\", \"pickup_datetime\", \"payment_type\", \"fare_amount\", \"surcharge\", \"mta_tax\", \"tip_amount\", \"tolls_amount\", \"total_amount\"}, {\"TripFares.medallion\", \"TripFares.hack_license\", \"TripFares.vendor_id\", \"TripFares.pickup_datetime\", \"TripFares.payment_type\", \"TripFares.fare_amount\", \"TripFares.surcharge\", \"TripFares.mta_tax\", \"TripFares.tip_amount\", \"TripFares.tolls_amount\", \"TripFares.total_amount\"}),\r\n  #\"Converting to Decimal Types\" = Table.TransformColumnTypes(#\"Expanding Joined Tables\", {{\"TripFares.total_amount\", type number}, {\"passenger_count\", type number}, {\"trip_time_in_secs\", type number}, {\"trip_distance\", type number}}),\r\n  #\"Aggregating on Vendor ID\" = Table.Group(#\"Converting to Decimal Types\", {\"vendor_id\"}, {{\"total_passenger_count\", each List.Sum([passenger_count]), type number}, {\"total_trip_time_in_secs\", each List.Sum([trip_time_in_secs]), type number}, {\"total_trip_distance\", each List.Sum([trip_distance]), type number}, {\"total_trip_fare\", each List.Sum([TripFares.total_amount]), type number}})\r\nin\r\n  #\"Aggregating on Vendor ID\";\r\n"
 				}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/CopyBlobToBlob')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/WriteJSON')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
-					{
-						"name": "BlobToBlob",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "MoviesDB",
+								"type": "DatasetReference"
 							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
+							"name": "MoviesDB",
+							"typeProperties": {}
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Json",
+								"type": "DatasetReference"
 							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "ExpenseDetails",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "EyBlobSink",
-								"type": "DatasetReference",
-								"parameters": {
-									"outputFolder": "blob-to-blob"
-								}
-							}
-						]
-					}
-				],
-				"folder": {
-					"name": "EY"
-				},
-				"annotations": []
+							"name": "JSON"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ConvertToJSON"
+						}
+					],
+					"script": "\n\nsource(output(\n\t\tmovie as string,\n\t\ttitle as string,\n\t\tgenres as string,\n\t\tyear as string,\n\t\tRating as string,\n\t\t{Rotton Tomato} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> MoviesDB\nMoviesDB derive(test = @(movie=movie,\n\t\ttitle=title,\n\t\tyear=abs(toInteger(year)))) ~> ConvertToJSON\nConvertToJSON sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['movies.json'],\n\ttruncate: true,\n\tpartitionBy('hash', 1)) ~> JSON"
+				}
 			},
 			"dependsOn": []
 		},
@@ -162,62 +190,24 @@
 					}
 				],
 				"folder": {
-					"name": "Providence"
+					"name": "IncrementalLoad"
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/ParquetCrud')]"
+			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/WranglingMovies')]",
+			"name": "[concat(parameters('factoryName'), '/Wrangling Data Flow Taxi Demo')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Joining and Aggregating New York City Taxi Data using Wrangling Data Flows",
 				"activities": [
 					{
-						"name": "Movies",
-						"type": "ExecuteWranglingDataflow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "MoviesAnalytics",
-								"type": "DataFlowReference",
-								"datasetParameters": {
-									"MoviesDB": {},
-									"MoviesSink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"computeType": "General",
-								"coreCount": 8
-							}
-						}
-					}
-				],
-				"folder": {
-					"name": "WranglingDataflows"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/WranglingTaxi')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "TaxiDemo",
+						"name": "Taxi Demo",
+						"description": "Joining and Aggregating New York City Taxi Data",
 						"type": "ExecuteWranglingDataflow",
 						"dependsOn": [],
 						"policy": {
@@ -247,7 +237,7 @@
 					}
 				],
 				"folder": {
-					"name": "WranglingDataflows"
+					"name": "Wrangling Data Flow Demos"
 				},
 				"annotations": []
 			},
@@ -256,7 +246,45 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ProvidenceIngestion')]",
+			"name": "[concat(parameters('factoryName'), '/WriteJSON')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WriteJSON",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "WriteJSON",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"MoviesDB": {},
+									"JSON": {}
+								}
+							},
+							"staging": {}
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/WriteJSON')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/IncrementalLoadDataFlow')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -286,7 +314,7 @@
 						}
 					},
 					{
-						"name": "ForEachSourceTable",
+						"name": "CopyEachSourceTable",
 						"type": "ForEach",
 						"dependsOn": [
 							{
@@ -455,11 +483,11 @@
 						]
 					},
 					{
-						"name": "ParquetCrudDataFLow",
+						"name": "ParquetCrudDataFlow",
 						"type": "ExecutePipeline",
 						"dependsOn": [
 							{
-								"activity": "ForEachSourceTable",
+								"activity": "CopyEachSourceTable",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -483,7 +511,7 @@
 					}
 				],
 				"folder": {
-					"name": "Providence"
+					"name": "IncrementalLoad"
 				},
 				"annotations": []
 			},
